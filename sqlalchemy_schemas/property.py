@@ -24,7 +24,7 @@ class Property(Base):
 def filter_properties(query_params:PropertyQueryParams, pagination:PageRequest, db_session:Session) -> PaginatedResponse:
     query = filter_property_query(query_params=query_params, db_session=db_session)
     count = query.count()
-    query = query.offset((pagination[0]-1)*pagination[1]).limit(pagination[1])
+    query = query.offset((pagination.page-1)*pagination.page_size).limit(pagination.page_size)
     properties = query.all()
     db_session.close()
 

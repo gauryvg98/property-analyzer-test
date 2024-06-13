@@ -28,14 +28,14 @@ def fetch_filtered_property_outliers_on_price(query_params:PropertyQueryParams, 
     outliers = df[(prices < lower_bound_price) | (prices > upper_bound_price)]
 
     # pagination
-    page = pagination[0]
-    page_size = pagination[1]
+    page = pagination.page
+    page_size = pagination.page_size
     total_outliers = len(outliers)
     outliers_paginated = outliers.iloc[(page - 1) * page_size: page * page_size]
     db_session.close()
     return PaginatedResponse(
-        page=pagination[0],
-        page_size=pagination[1],
+        page=page,
+        page_size=page_size,
         total=total_outliers,
         results=convert_df_to_PropertyResponse(outliers_paginated)
     )
@@ -66,15 +66,15 @@ def fetch_filtered_property_outliers_on_price_per_squarefeet(query_params:Proper
     upper_bound_pps = p75_pps + 1.5 * iqr_pps
     outliers = df[(price_per_sqft < lower_bound_pps) | (price_per_sqft > upper_bound_pps)]
 
-    page = pagination[0]
-    page_size = pagination[1]
+    page = pagination.page
+    page_size = pagination.page_size
     
     total_outliers = len(outliers)
     outliers_paginated = outliers.iloc[(page - 1) * page_size: page * page_size]
     db_session.close()
     return PaginatedResponse(
-        page=pagination[0],
-        page_size=pagination[1],
+        page=page,
+        page_size=page_size,
         total=total_outliers,
         results=convert_df_to_PropertyResponse(outliers_paginated)
     )
