@@ -7,11 +7,10 @@ from db.load_data import load_data
 from routers.property import property_router
 
 
-
 app = FastAPI()
 
 #add routers to main app
-app.include_router(property_router)
+app.include_router(property_router, prefix="/property")
 
 @app.get("/")
 def health():
@@ -22,4 +21,4 @@ if __name__ == "__main__":
     sqlite_setup.create_db_tables()
     ## Load data
     load_data('./zoomprop_data_engineering.csv')
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8000, reload=False)

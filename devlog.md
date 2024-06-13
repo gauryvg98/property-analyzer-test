@@ -7,7 +7,7 @@ Will need to not load rows into SQL which do not seem to have price attached to 
 ### Better - To load all the data into SQL, and only use valid rows for analysis 
 Definition of valid rows : rows which do not have a missing price
 
-### Quick Analysis of the data with chatgpt to drive some development decisions: (Double checked to ensure no hallucinations)
+### Quick Analysis of the data to drive some development decisions :
 Total rows (total) : 464,889 
 Total unique rows: 388,006
 Number of rows with conflicting (duplicate) property IDs: 577
@@ -21,7 +21,7 @@ Rows with all columns present = (total - at_least_one_missing_data_point) = 464,
 Rows with no missing price data (rows which fit my "valid" definition) = total - missing_price ~= 380,000
 Rows we wont be able to use for deeper analysis (price present but missing bedrooms/bathrooms/area) ~= 31,686
 
-#### Raw dump from chatgpt
+#### Raw dump from analysis
 Total rows: 464,889
 Total unique rows: 464,431
 Rows with conflicting property IDs: 577
@@ -45,7 +45,12 @@ No variation in prices across duplicate properties across datetime listed found
 
 ## Starting development : 
 1. Define response models and table schema. 
-2. Expose API for fetching and filtering properties.
+2. Expose API for filtering properties.
 3. Simple load script : load into pandas, and then write row by row to sql
 Add some extra fields during load (is_valid and is_historic)
+Load price == 0 as price = null, because zero price makes no sense (null price means missing price, which makes more sense and it wouldnt skew our analysis)
 4. Expose API to calculate statistics
+5. Refactor code - Extract out common query params as injectable classes and filter database objects based on them
+6. Add pagination as a middleware
+7. Write tests with a smaller data set of 10 properties for the APIs and statistics functions
+8. Add visualizations using plotly
