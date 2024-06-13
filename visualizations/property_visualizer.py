@@ -7,7 +7,8 @@ import plotly.graph_objs as go
 
 def price_distribution(query_params: PropertyQueryParams, db_session: Session):
     query = filter_property_query(query_params=query_params, db_session=db_session)
-    prices = [price for price, in query]
+    result = query.all()
+    prices = [property.price for property in result]
 
     fig = make_subplots(rows=1, cols=1)
     fig.add_trace(go.Histogram(x=prices, nbinsx=50, marker_color='blue', opacity=0.7), row=1, col=1)
@@ -16,8 +17,10 @@ def price_distribution(query_params: PropertyQueryParams, db_session: Session):
     return fig.to_html(full_html=False)
 
 def bedrooms_distribution(query_params: PropertyQueryParams, db_session: Session):
-    query = db_session.query(Property.bedrooms).all()
-    bedrooms = [bedroom for bedroom, in query]
+    query = filter_property_query(query_params=query_params, db_session=db_session)
+    query.filter(Property.is_valid == True)
+    result = query.all()
+    bedrooms = [property.bedrooms for property in result]
 
     fig = make_subplots(rows=1, cols=1)
     fig.add_trace(go.Bar(x=pd.Series(bedrooms).value_counts().sort_index().index, 

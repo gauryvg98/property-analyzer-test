@@ -1,5 +1,7 @@
 from datetime import datetime
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
 from db import sqlite_setup
@@ -10,9 +12,18 @@ from routers.visualization import visualization_router
 
 app = FastAPI()
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 #add routers to main app
 app.include_router(property_router, prefix="/property")
 app.include_router(visualization_router, prefix="/visualization")
+app.mount("/static", StaticFiles(directory="./static"), name="static")
 
 @app.get("/")
 def health():

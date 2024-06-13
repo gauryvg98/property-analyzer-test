@@ -29,8 +29,8 @@ def filter_properties(query_params:PropertyQueryParams, pagination:PageRequest, 
     db_session.close()
 
     return PaginatedResponse(
-        page=pagination[0],
-        page_size=pagination[1],
+        page=pagination.page,
+        page_size=pagination.page_size,
         total=count,
         results=[property.__dict__ for property in properties],
     )

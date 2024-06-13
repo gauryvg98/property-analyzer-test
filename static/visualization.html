@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Data Visualizations</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <h1>Property Data Visualizations</h1>
+    <div>
+        <label for="city">City:</label>
+        <input type="text" id="city" name="city">
+    </div>
+    <div>
+        <label for="state">State:</label>
+        <input type="text" id="state" name="state">
+    </div>
+    <div>
+        <label for="zipcode">Zipcode:</label>
+        <input type="text" id="zipcode" name="zipcode">
+    </div>
+    <div>
+        <label for="bedrooms">Bedrooms:</label>
+        <input type="number" id="bedrooms" name="bedrooms">
+    </div>
+    <div>
+        <label for="bathrooms">Bathrooms:</label>
+        <input type="number" step="0.5" id="bathrooms" name="bathrooms">
+    </div>
+    <button onclick="refreshGraphs()">Refresh Graphs</button>
+    <h2>Price Distribution (Plotly)</h2>
+    <div id="price-distribution-plotly"></div>
+
+    <h2>Bedrooms Distribution (Plotly)</h2>
+    <div id="bedrooms-distribution-plotly"></div>
+
+    <script>
+        async function fetchPlotlyPlot(url, divId) {
+            const response = await fetch(url);
+            const html = await response.text();
+            document.getElementById(divId).innerHTML = html;
+            const scriptTags = document.getElementById(divId).getElementsByTagName('script');
+            for (const scriptTag of scriptTags) {
+                eval(scriptTag.innerHTML);
+            }
+        }
+
+        function buildUrlWithParams(baseUrl, params) {
+            const url = new URL(baseUrl, window.location.origin);
+            Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
+            return url;
+        }
+
+        function refreshGraphs() {
+            const city = document.getElementById('city').value;
+            const state = document.getElementById('state').value;
+            const zipcode = document.getElementById('zipcode').value;
+            const bedrooms = document.getElementById('bedrooms').value;
+            const bathrooms = document.getElementById('bathrooms').value;
+
+            const params = {};
+            if (city) params.city = city;
+            if (state) params.state = state;
+            if (zipcode) params.zipcode = zipcode;
+            if (bedrooms) params.bedrooms = bedrooms;
+            if (bathrooms) params.bathrooms = bathrooms;
+
+            const priceDistributionUrl = buildUrlWithParams('http://localhost:8000/visualization/property/price/', params);
+            const bedroomsDistributionUrl = buildUrlWithParams('http://localhost:8000/visualization/property/rooms/', params);
+
+            fetchPlotlyPlot(priceDistributionUrl, 'price-distribution-plotly');
+            fetchPlotlyPlot(bedroomsDistributionUrl, 'bedrooms-distribution-plotly');
+        }
+
+        // Fetch and display the Plotly plots
+        // fetchPlotlyPlot('http://localhost:8000/visualization/property/price/', 'price-distribution-plotly');
+        // fetchPlotlyPlot('http://localhost:8000/visualization/property/rooms/', 'bedrooms-distribution-plotly');
+    </script>
+</body>
+</html>
