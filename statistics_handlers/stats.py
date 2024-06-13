@@ -1,6 +1,7 @@
 import pandas as pd
 from sqlalchemy.orm import Session
-from pydantic_models.property import PaginatedResponse, Percentiles, PropertyQueryParams, PropertyResponse,PropertyStatisticsResponse
+from pydantic_models.property import PropertyQueryParams
+from pydantic_models.statistics import Percentiles, PropertyStatisticsResponse
 from sqlalchemy_schemas.property import Property, filter_property_query
 
 

@@ -5,12 +5,14 @@ import uvicorn
 from db import sqlite_setup
 from db.load_data import load_data
 from routers.property import property_router
+from routers.visualization import visualization_router
 
 
 app = FastAPI()
 
 #add routers to main app
 app.include_router(property_router, prefix="/property")
+app.include_router(visualization_router, prefix="/visualization")
 
 @app.get("/")
 def health():

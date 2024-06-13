@@ -1,7 +1,9 @@
 from datetime import datetime
 from fastapi import Query
+import pandas as pd
 from pydantic import BaseModel
 from typing import Optional
+from utils.dataframe import sanitize_pandas_dataframe
 
 class PropertyResponse(BaseModel):
     propertyid: int
@@ -32,21 +34,6 @@ class PropertyQueryParams(BaseModel):
     city: Optional[str] = Query(None)
     state: Optional[str] = Query(None)
 
-class Percentiles(BaseModel):
-    percentile_25_price: float
-    percentile_50_price: float
-    percentile_75_price: float
-    percentile_90_price: float
-    percentile_99_price: float
-
-class PropertyStatisticsResponse(BaseModel):
-    average_price: float
-    median_price: float
-    average_price_per_sqft: float
-    total_properties: int
-    percentiles: Percentiles
-    outlier_properties_count: int
-
 def property_query_params(
     price_min: Optional[float] = Query(None),
     price_max: Optional[float] = Query(None),
@@ -69,3 +56,8 @@ def property_query_params(
         city=city,
         state=state,
     )
+
+def convert_df_to_PropertyResponse(df: pd.DataFrame) -> list[PropertyResponse]:
+    dict_list = sanitize_pandas_dataframe(df)
+    results=[PropertyResponse(**item) for item in dict_list]
+    return results

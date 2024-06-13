@@ -1,11 +1,11 @@
 import pandas as pd
 from sqlalchemy.orm import Session
-from pydantic_models.property import PaginatedResponse, PropertyQueryParams, PropertyResponse
+from middleware.pagination import PageRequest
+from pydantic_models.property import PaginatedResponse, PropertyQueryParams, convert_df_to_PropertyResponse
 from sqlalchemy_schemas.property import Property, filter_property_query
-from utils.dataframe import sanitize_pandas_dataframe
 
 
-def fetch_filtered_property_outliers_on_price(query_params:PropertyQueryParams, pagination: tuple[int, int], db_session:Session) -> PaginatedResponse:
+def fetch_filtered_property_outliers_on_price(query_params:PropertyQueryParams, pagination: PageRequest, db_session:Session) -> PaginatedResponse:
     
     query = filter_property_query(query_params=query_params, db_session=db_session)
     query = query.filter(Property.is_valid == True)
@@ -32,17 +32,16 @@ def fetch_filtered_property_outliers_on_price(query_params:PropertyQueryParams, 
     page_size = pagination[1]
     total_outliers = len(outliers)
     outliers_paginated = outliers.iloc[(page - 1) * page_size: page * page_size]
-    sanitized_records = sanitize_pandas_dataframe(outliers_paginated)
     db_session.close()
     return PaginatedResponse(
         page=pagination[0],
         page_size=pagination[1],
         total=total_outliers,
-        results=[PropertyResponse(**item) for item in sanitized_records]
+        results=convert_df_to_PropertyResponse(outliers_paginated)
     )
 
 
-def fetch_filtered_property_outliers_on_price_per_squarefeet(query_params:PropertyQueryParams, pagination: tuple[int, int], db_session:Session) -> PaginatedResponse:
+def fetch_filtered_property_outliers_on_price_per_squarefeet(query_params:PropertyQueryParams, pagination: PageRequest, db_session:Session) -> PaginatedResponse:
     
     query = filter_property_query(query_params=query_params, db_session=db_session)
     query = query.filter(Property.is_valid == True)
@@ -72,11 +71,10 @@ def fetch_filtered_property_outliers_on_price_per_squarefeet(query_params:Proper
     
     total_outliers = len(outliers)
     outliers_paginated = outliers.iloc[(page - 1) * page_size: page * page_size]
-    sanitized_records = sanitize_pandas_dataframe(outliers_paginated)
     db_session.close()
     return PaginatedResponse(
         page=pagination[0],
         page_size=pagination[1],
         total=total_outliers,
-        results=[PropertyResponse(**item) for item in sanitized_records]
+        results=convert_df_to_PropertyResponse(outliers_paginated)
     )

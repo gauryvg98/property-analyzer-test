@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, Float, DateTime, Boolean
 from db.sqlite_setup import Base
 from sqlalchemy.orm import Session
 
+from middleware.pagination import PageRequest
 from pydantic_models.property import PaginatedResponse, PropertyQueryParams
 
 class Property(Base):
@@ -20,7 +21,7 @@ class Property(Base):
     is_valid = Column(Boolean)
     is_historic = Column(Boolean)
 
-def filter_properties(query_params:PropertyQueryParams, pagination:tuple[int,int], db_session:Session) -> PaginatedResponse:
+def filter_properties(query_params:PropertyQueryParams, pagination:PageRequest, db_session:Session) -> PaginatedResponse:
     query = filter_property_query(query_params=query_params, db_session=db_session)
     count = query.count()
     query = query.offset((pagination[0]-1)*pagination[1]).limit(pagination[1])
