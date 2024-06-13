@@ -32,6 +32,9 @@
         <button onclick="refreshGraph('http://localhost:8000/visualization/property/price/', 'price-distribution-plotly')">Generate Price Distribution</button>
         <button onclick="refreshGraph('http://localhost:8000/visualization/property/rooms/', 'bedrooms-distribution-plotly')">Generate Bedrooms Distribution</button>
         <button onclick="refreshGraph('http://localhost:8000/visualization/property/price-vs-zipcode-scatter/', 'price-vs-zipcode-scatter')">Generate Price vs Zipcode</button>
+        <button onclick="refreshGraph('http://localhost:8000/visualization/property/price-zipcode-heatmap/', 'price-zipcode-heatmap')">Generate Geographical Price Heatmap</button>
+
+        
     </div>
     <h2>Price Distribution (Plotly)</h2>
     <div id="price-distribution-plotly"></div>
@@ -39,8 +42,11 @@
     <h2>Bedrooms Distribution (Plotly)</h2>
     <div id="bedrooms-distribution-plotly"></div>
 
-    <h2>Bedrooms Distribution (Plotly)</h2>
+    <h2>Price vs Zipcode Scatter Plots (Plotly)</h2>
     <div id="price-vs-zipcode-scatter"></div>
+
+    <h2>Geographical Price Heatmap (Plotly)</h2>
+    <div id="price-zipcode-heatmap"></div>
 
     <script>
         async function fetchPlotlyPlot(url, divId) {

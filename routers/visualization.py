@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from db.sqlite_setup import fetch_db_session
 from pydantic_models.property import PropertyQueryParams, property_query_params
-from visualizations.property_visualizer import bedrooms_distribution, price_distribution, price_vs_zipcode_scatter_plot
+from visualizations.property_visualizer import bedrooms_distribution, price_distribution, price_vs_zipcode_scatter_plot, price_heatmap_zipcode
 
 visualization_router = APIRouter()
 
@@ -37,4 +37,11 @@ def get_price_zipcode_scatter_plot(
         db_session: Session = Depends(fetch_db_session)
     ):
     html_plot = price_vs_zipcode_scatter_plot(query_params=query_params, db_session=db_session)
+    return HTMLResponse(content=html_plot)
+
+@visualization_router.get("/property/price-zipcode-heatmap/", response_class=HTMLResponse)
+def get_price_zipcode_scatter_plot(
+        db_session: Session = Depends(fetch_db_session)
+    ):
+    html_plot = price_heatmap_zipcode(db_session=db_session)
     return HTMLResponse(content=html_plot)

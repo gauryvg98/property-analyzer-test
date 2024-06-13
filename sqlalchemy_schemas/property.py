@@ -35,9 +35,13 @@ def filter_properties(query_params:PropertyQueryParams, pagination:PageRequest, 
         results=[property.__dict__ for property in properties],
     )
 
-def filter_property_query(query_params:PropertyQueryParams, db_session:Session):
-    query = db_session.query(Property)
-
+def filter_property_query(query_params:PropertyQueryParams, db_session:Session, columns: list[Column] = []):
+    if len(columns) == 0:
+        query = db_session.query(Property)
+    else:
+        query = db_session.query(*columns)
+    if query_params == None:
+        return query
     # filters on price
     if query_params.price_min is not None:
         query = query.filter(Property.price >= query_params.price_min)
