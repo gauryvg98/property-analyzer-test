@@ -28,12 +28,19 @@
         <label for="bathrooms">Bathrooms:</label>
         <input type="number" step="0.5" id="bathrooms" name="bathrooms">
     </div>
-    <button onclick="refreshGraphs()">Refresh Graphs</button>
+    <div>
+        <button onclick="refreshGraph('http://localhost:8000/visualization/property/price/', 'price-distribution-plotly')">Generate Price Distribution</button>
+        <button onclick="refreshGraph('http://localhost:8000/visualization/property/rooms/', 'bedrooms-distribution-plotly')">Generate Bedrooms Distribution</button>
+        <button onclick="refreshGraph('http://localhost:8000/visualization/property/price-vs-zipcode-scatter/', 'price-vs-zipcode-scatter')">Generate Price vs Zipcode</button>
+    </div>
     <h2>Price Distribution (Plotly)</h2>
     <div id="price-distribution-plotly"></div>
 
     <h2>Bedrooms Distribution (Plotly)</h2>
     <div id="bedrooms-distribution-plotly"></div>
+
+    <h2>Bedrooms Distribution (Plotly)</h2>
+    <div id="price-vs-zipcode-scatter"></div>
 
     <script>
         async function fetchPlotlyPlot(url, divId) {
@@ -52,7 +59,7 @@
             return url;
         }
 
-        function refreshGraphs() {
+        function refreshGraph(url, divId) {
             const city = document.getElementById('city').value;
             const state = document.getElementById('state').value;
             const zipcode = document.getElementById('zipcode').value;
@@ -66,16 +73,9 @@
             if (bedrooms) params.bedrooms = bedrooms;
             if (bathrooms) params.bathrooms = bathrooms;
 
-            const priceDistributionUrl = buildUrlWithParams('http://localhost:8000/visualization/property/price/', params);
-            const bedroomsDistributionUrl = buildUrlWithParams('http://localhost:8000/visualization/property/rooms/', params);
-
-            fetchPlotlyPlot(priceDistributionUrl, 'price-distribution-plotly');
-            fetchPlotlyPlot(bedroomsDistributionUrl, 'bedrooms-distribution-plotly');
+            const modfUrl = buildUrlWithParams(url, params);
+            fetchPlotlyPlot(modfUrl, divId);
         }
-
-        // Fetch and display the Plotly plots
-        // fetchPlotlyPlot('http://localhost:8000/visualization/property/price/', 'price-distribution-plotly');
-        // fetchPlotlyPlot('http://localhost:8000/visualization/property/rooms/', 'bedrooms-distribution-plotly');
     </script>
 </body>
 </html>
