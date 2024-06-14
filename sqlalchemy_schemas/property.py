@@ -38,13 +38,12 @@ def filter_properties(query_params:PropertyQueryParams, pagination:PageRequest, 
         results=[property.__dict__ for property in properties],
     )
 
-def filter_property_query(query_params:PropertyQueryParams, db_session:Session, columns: list = [], existing_query=None, latest:bool = True):
-    query = existing_query
-    if existing_query is None:
-        if len(columns) == 0:
-            query = db_session.query(Property)
-        else:
-            query = db_session.query(*columns)
+def filter_property_query(query_params:PropertyQueryParams, db_session:Session, columns: list = [], latest:bool = True):
+    query = None
+    if len(columns) == 0:
+        query = db_session.query(Property)
+    else:
+        query = db_session.query(*columns)
     if query_params == None:
         return query
     # filters on price

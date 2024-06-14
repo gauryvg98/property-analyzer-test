@@ -6,7 +6,7 @@ from sqlalchemy_schemas.property import Property, filter_property_query
 import plotly.express as px
 
 def percentile_price_distribution(query_params: PropertyQueryParams, db_session: Session):
-    query = filter_property_query(query_params=query_params, db_session=db_session, columns=[Property.price]).filter(Property.price != None).all()
+    query = filter_property_query(query_params=query_params, db_session=db_session, columns=[Property.price]).filter(Property.price > 0).all()
     
     if not query:
         return "<h3>No data available for the given query parameters</h3>"
@@ -110,7 +110,12 @@ def price_vs_zipcode_box_plot(query_params: PropertyQueryParams, db_session: Ses
     )
 
 def historical_price_trends(query_params: PropertyQueryParams, db_session: Session):
-    query = filter_property_query(query_params=query_params, db_session=db_session, columns=[Property.price, Property.datelisted]).filter(Property.price != None, Property.datelisted != None).all()
+    query = filter_property_query(
+            query_params=query_params, 
+            db_session=db_session, 
+            columns=[Property.price, Property.datelisted],
+            latest=False,
+        ).filter(Property.price > 0, Property.datelisted != None).all()
     
     if not query:
         return "<h3>No data available for the given query parameters</h3>"

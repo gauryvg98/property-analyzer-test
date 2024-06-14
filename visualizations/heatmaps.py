@@ -137,7 +137,8 @@ def heatmaps_zipcode(query_params: PropertyQueryParams, db_session: Session):
 def historical_heatmaps_zipcode(query_params: PropertyQueryParams, db_session: Session):
     query = filter_property_query(
             query_params=query_params, db_session=db_session, 
-            columns=[Property.price, Property.zipcode, Property.squarefeet, Property.datelisted, Property.price_per_square_feet]
+            columns=[Property.propertyid, Property.price, Property.zipcode, Property.squarefeet, Property.datelisted, Property.price_per_square_feet],
+            latest=False,
         ).filter(
             Property.zipcode != None, Property.squarefeet > 0, Property.price > 0, Property.datelisted != None
         ).all()
@@ -145,9 +146,18 @@ def historical_heatmaps_zipcode(query_params: PropertyQueryParams, db_session: S
     if not query:
         return "<h3>No data available for the given query parameters</h3>"
 
-    df = pd.DataFrame(query, columns=["price", "zipcode", "squarefeet", "datelisted", "price_per_square_feet"])
+    df = pd.DataFrame(query, columns=["propertyid", "price", "zipcode", "squarefeet", "datelisted", "price_per_square_feet"])
     df['datelisted'] = pd.to_datetime(df['datelisted']).dt.to_period('M')
     
+    # all_periods = pd.period_range(start=df['datelisted'].min(), end=df['datelisted'].max(), freq='M')
+    # all_propertyids = df['propertyid'].unique()
+    # complete_index = pd.MultiIndex.from_product([all_propertyids, all_periods], names=['propertyid', 'datelisted'])
+    # df.set_index(['propertyid', 'datelisted'], inplace=True)
+    # df = df.reset_index().drop_duplicates(subset=['propertyid', 'datelisted']).set_index(['propertyid', 'datelisted'])
+    # df = df.reindex(complete_index).sort_index()
+    # df = df.groupby('propertyid').ffill().reset_index()
+    # print(df)
+
     zipcode_data = df.groupby(["zipcode", "datelisted"]).agg(
         average_price=("price", "mean"),
         number_of_listings=("price", "size"),
