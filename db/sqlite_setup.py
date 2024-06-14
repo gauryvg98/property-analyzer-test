@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, inspect
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
@@ -14,6 +14,7 @@ def fetch_db_session():
     finally:
         db.close()
 
-def create_db_tables():
-    ## Would prefer to use database migrations, but for the time being, this will do
+def create_db_tables() -> bool:
+    #drop and create again on every restart (quick hacky way to ensure we dont overload data)
+    Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)

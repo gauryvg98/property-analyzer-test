@@ -8,6 +8,7 @@ from db import sqlite_setup
 from db.load_data import load_data
 from routers.property import property_router
 from routers.visualization import visualization_router
+from sqlalchemy_schemas.property import Property
 
 
 app = FastAPI()
@@ -20,10 +21,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.mount("/static", StaticFiles(directory="./static"), name="static")
+
 #add routers to main app
 app.include_router(property_router, prefix="/property")
 app.include_router(visualization_router, prefix="/visualization")
-app.mount("/static", StaticFiles(directory="./static"), name="static")
 
 @app.get("/")
 def health():
@@ -31,7 +33,7 @@ def health():
 
 if __name__ == "__main__":
     # initialize db before starting the api server
-    sqlite_setup.create_db_tables()
+    created_new_table = sqlite_setup.create_db_tables()
     ## Load data
     load_data('./zoomprop_data_engineering.csv')
-    uvicorn.run(app, host="0.0.0.0", port=8000, reload=False)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

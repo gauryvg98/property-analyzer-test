@@ -22,15 +22,8 @@ def load_data(csv_file):
             squarefeet=row['squarefeet'],
             datelisted=datetime.strptime(row['datelisted'], '%Y-%m-%d %H:%M:%S') if pd.notnull(row['datelisted']) else None,           
         )
-        if property_entry.price == 0:
-            property_entry.price = None
-
-        if property_entry.price == None:
-            property_entry.is_valid = False
-            #property_entry.is_historic = False
-        else:
-            property_entry.is_valid = True
-            #property_entry.is_historic = True
+        if property_entry.price > 0 and property_entry.squarefeet > 0:
+            property_entry.price_per_square_feet = property_entry.price / property_entry.squarefeet
         properties.append(property_entry)
 
     db_session.bulk_save_objects(properties)

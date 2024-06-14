@@ -30,14 +30,18 @@
     </div>
     <div>
         <button onclick="refreshGraph('http://localhost:8000/visualization/property/price/', 'price-distribution-plotly')">Generate Price Distribution</button>
+        <button onclick="refreshGraph('http://localhost:8000/visualization/property/historical-price/', 'historical-price-distribution-plotly')">Generate Historical Price Distribution</button>
         <button onclick="refreshGraph('http://localhost:8000/visualization/property/rooms/', 'bedrooms-distribution-plotly')">Generate Bedrooms Distribution</button>
         <button onclick="refreshGraph('http://localhost:8000/visualization/property/price-vs-zipcode-scatter/', 'price-vs-zipcode-scatter')">Generate Price vs Zipcode</button>
-        <button onclick="refreshGraph('http://localhost:8000/visualization/property/price-zipcode-heatmap/', 'price-zipcode-heatmap')">Generate Geographical Price Heatmap</button>
-
+        <button onclick="refreshGraph('http://localhost:8000/visualization/property/zipcode-heatmaps/', 'zipcode-heatmap')">Generate Geographical Heatmap</button>
+        <button onclick="refreshGraph('http://localhost:8000/visualization/property/historical-zipcode-heatmaps/', 'historical-zipcode-heatmap')">Generate Historical Geo-Heatmap</button>
         
     </div>
     <h2>Price Distribution (Plotly)</h2>
     <div id="price-distribution-plotly"></div>
+
+    <h2>Historical Price Distribution (Plotly)</h2>
+    <div id="historical-price-distribution-plotly"></div>
 
     <h2>Bedrooms Distribution (Plotly)</h2>
     <div id="bedrooms-distribution-plotly"></div>
@@ -45,8 +49,11 @@
     <h2>Price vs Zipcode Scatter Plots (Plotly)</h2>
     <div id="price-vs-zipcode-scatter"></div>
 
-    <h2>Geographical Price Heatmap (Plotly)</h2>
-    <div id="price-zipcode-heatmap"></div>
+    <h2>Geographical Heatmap (Plotly)</h2>
+    <div id="zipcode-heatmap"></div>
+
+    <h2>Historical Geo-Heatmap (Plotly)</h2>
+    <div id="historical-zipcode-heatmap"></div>
 
     <script>
         async function fetchPlotlyPlot(url, divId) {

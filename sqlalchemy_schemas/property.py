@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, Boolean
+from sqlalchemy import Column, Index, Integer, String, Float, DateTime, and_, func
 from db.sqlite_setup import Base
 from sqlalchemy.orm import Session
 
@@ -17,9 +17,12 @@ class Property(Base):
     bedrooms = Column(Integer, nullable=True,)
     bathrooms = Column(Float, nullable=True,)
     squarefeet = Column(Float, nullable=True,)
+    price_per_square_feet = Column(Float,nullable=True)
     datelisted = Column(DateTime, nullable=True,)
-    is_valid = Column(Boolean)
-    is_historic = Column(Boolean)
+
+    __table_args__ = (
+        Index('ix_property_propertyid_datelisted', 'propertyid', 'datelisted'),
+    )
 
 def filter_properties(query_params:PropertyQueryParams, pagination:PageRequest, db_session:Session) -> PaginatedResponse:
     query = filter_property_query(query_params=query_params, db_session=db_session)
@@ -35,11 +38,13 @@ def filter_properties(query_params:PropertyQueryParams, pagination:PageRequest, 
         results=[property.__dict__ for property in properties],
     )
 
-def filter_property_query(query_params:PropertyQueryParams, db_session:Session, columns: list[Column] = []):
-    if len(columns) == 0:
-        query = db_session.query(Property)
-    else:
-        query = db_session.query(*columns)
+def filter_property_query(query_params:PropertyQueryParams, db_session:Session, columns: list = [], existing_query=None, latest:bool = True):
+    query = existing_query
+    if existing_query is None:
+        if len(columns) == 0:
+            query = db_session.query(Property)
+        else:
+            query = db_session.query(*columns)
     if query_params == None:
         return query
     # filters on price
@@ -47,6 +52,12 @@ def filter_property_query(query_params:PropertyQueryParams, db_session:Session, 
         query = query.filter(Property.price >= query_params.price_min)
     if query_params.price_max is not None:
         query = query.filter(Property.price <= query_params.price_max)
+    
+    # filters on price per square feet
+    if query_params.price_per_square_feet_min is not None:
+        query = query.filter(Property.price_per_square_feet >= query_params.price_per_square_feet_min)
+    if query_params.price_per_square_feet_max is not None:
+        query = query.filter(Property.price_per_square_feet <= query_params.price_per_square_feet_max)
 
     # filters on squarefeet
     if query_params.squarefeet_min is not None:
@@ -74,4 +85,21 @@ def filter_property_query(query_params:PropertyQueryParams, db_session:Session, 
     if query_params.state is not None:
         query = query.filter(Property.state == query_params.state)
     
+    # latest = false for historic data -> it would fetch all datelist prices in the table
+    if latest:
+        subquery = db_session.query(
+            Property.propertyid,
+            func.max(Property.datelisted).label('max_datelisted')
+        ).filter(Property.datelisted != None).group_by(Property.propertyid).subquery()
+
+        query = query.outerjoin(
+            subquery,
+            and_(
+                Property.propertyid == subquery.c.propertyid,
+                Property.datelisted == subquery.c.max_datelisted
+            )
+        ).filter(
+            (Property.datelisted == subquery.c.max_datelisted) | (Property.datelisted == None)
+        )
+
     return query

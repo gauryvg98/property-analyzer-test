@@ -3,6 +3,7 @@ from fastapi import Query
 import pandas as pd
 from pydantic import BaseModel
 from typing import Optional
+from middleware.pagination import PageRequest
 from utils.dataframe import sanitize_pandas_dataframe
 
 class PropertyResponse(BaseModel):
@@ -15,6 +16,7 @@ class PropertyResponse(BaseModel):
     bedrooms: Optional[int] = None
     bathrooms: Optional[float] = None
     squarefeet: Optional[float] = None
+    price_per_square_feet: Optional[float] = None
     datelisted: Optional[datetime] = None
 
 class PaginatedResponse(BaseModel):
@@ -26,6 +28,8 @@ class PaginatedResponse(BaseModel):
 class PropertyQueryParams(BaseModel):
     price_min: Optional[float] = Query(None)
     price_max: Optional[float] = Query(None)
+    price_per_square_feet_min: Optional[float] = Query(None)
+    price_per_square_feet_max: Optional[float] = Query(None)
     squarefeet_min: Optional[float] = Query(None),
     squarefeet_max: Optional[float] = Query(None),
     bedrooms: Optional[int] = Query(None)
@@ -37,6 +41,8 @@ class PropertyQueryParams(BaseModel):
 def property_query_params(
     price_min: Optional[float] = Query(None),
     price_max: Optional[float] = Query(None),
+    price_per_square_feet_min: Optional[float] = Query(None),
+    price_per_square_feet_max: Optional[float] = Query(None),
     squarefeet_min: Optional[float] = Query(None),
     squarefeet_max: Optional[float] = Query(None),
     bedrooms: Optional[int] = Query(None),
@@ -48,6 +54,8 @@ def property_query_params(
     return PropertyQueryParams(
         price_min=price_min,
         price_max=price_max,
+        price_per_square_feet_min=price_per_square_feet_min,
+        price_per_square_feet_max=price_per_square_feet_max,
         squarefeet_min=squarefeet_min,
         squarefeet_max=squarefeet_max,
         bedrooms=bedrooms,
@@ -61,3 +69,4 @@ def convert_df_to_PropertyResponse(df: pd.DataFrame) -> list[PropertyResponse]:
     dict_list = sanitize_pandas_dataframe(df)
     results=[PropertyResponse(**item) for item in dict_list]
     return results
+    

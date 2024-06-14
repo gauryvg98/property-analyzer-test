@@ -7,7 +7,7 @@ from sqlalchemy_schemas.property import Property, filter_property_query
 
 def calculate_property_statistics(query_params: PropertyQueryParams, db_session: Session) -> PropertyStatisticsResponse:
     query = filter_property_query(query_params=query_params, db_session=db_session)
-    query = query.filter(Property.is_valid == True)
+    query = query.filter(Property.price > 0)
     query = query.filter(Property.squarefeet > 0)
     # Read the prices and squarefeet columns
     df = pd.read_sql(query.statement, db_session.bind)
