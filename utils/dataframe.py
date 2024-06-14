@@ -37,3 +37,30 @@ def forwardfill_price_for_historical_property_data(df: pd.DataFrame) -> pd.DataF
     df = df.groupby('propertyid').ffill().reset_index()
 
     return df
+
+def sqlalchemy_models_to_dataframe(models):
+    """
+    Convert a list of SQLAlchemy model instances to a pandas DataFrame.
+    
+    Args:
+    models (list): List of SQLAlchemy model instances.
+    
+    Returns:
+    pd.DataFrame: DataFrame containing the data from the SQLAlchemy models.
+    """
+    if not models:
+        return pd.DataFrame()
+
+    # Extract the column names from the first model instance
+    columns = models[0].__table__.columns.keys()
+    
+    # Extract data from each model instance
+    data = []
+    for model in models:
+        row = {column: getattr(model, column) for column in columns}
+        data.append(row)
+    
+    # Create DataFrame from the list of dictionaries
+    df = pd.DataFrame(data, columns=columns)
+    
+    return df
