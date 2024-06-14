@@ -29,12 +29,12 @@
         <input type="number" step="0.5" id="bathrooms" name="bathrooms">
     </div>
     <div>
-        <button onclick="refreshGraph('http://localhost:8000/visualization/property/price/', 'price-distribution-plotly')">Generate Price Distribution</button>
-        <button onclick="refreshGraph('http://localhost:8000/visualization/property/historical-price/', 'historical-price-distribution-plotly')">Generate Historical Price Distribution</button>
-        <button onclick="refreshGraph('http://localhost:8000/visualization/property/rooms/', 'bedrooms-distribution-plotly')">Generate Bedrooms Distribution</button>
-        <button onclick="refreshGraph('http://localhost:8000/visualization/property/price-vs-zipcode-scatter/', 'price-vs-zipcode-scatter')">Generate Price vs Zipcode</button>
-        <button onclick="refreshGraph('http://localhost:8000/visualization/property/zipcode-heatmaps/', 'zipcode-heatmap')">Generate Geographical Heatmap</button>
-        <button onclick="refreshGraph('http://localhost:8000/visualization/property/historical-zipcode-heatmaps/', 'historical-zipcode-heatmap')">Generate Historical Geo-Heatmap</button>
+        <button onclick="refreshGraph('{{backend_url}}/visualization/property/price/', 'price-distribution-plotly')">Generate Price Distribution</button>
+        <button onclick="refreshGraph('{{backend_url}}/visualization/property/historical-price/', 'historical-price-distribution-plotly')">Generate Historical Price Distribution</button>
+        <button onclick="refreshGraph('{{backend_url}}/visualization/property/rooms/', 'bedrooms-distribution-plotly')">Generate Bedrooms Distribution</button>
+        <button onclick="refreshGraph('{{backend_url}}/visualization/property/price-vs-zipcode-scatter/', 'price-vs-zipcode-scatter')">Generate Price vs Zipcode</button>
+        <button onclick="refreshGraph('{{backend_url}}/visualization/property/zipcode-heatmaps/', 'zipcode-heatmap')">Generate Geographical Heatmap</button>
+        <button onclick="refreshGraph('{{backend_url}}/visualization/property/historical-zipcode-heatmaps/', 'historical-zipcode-heatmap')">Generate Historical Geo-Heatmap</button>
         
     </div>
     <h2>Price Distribution (Plotly)</h2>

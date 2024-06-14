@@ -1,18 +1,22 @@
 
-from fastapi import APIRouter, Depends
+import os
+from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
 from db.sqlite_setup import fetch_db_session
 from pydantic_models.property import PropertyQueryParams, property_query_params
 from visualizations import plots, heatmaps
+
 visualization_router = APIRouter()
 
+templates = Jinja2Templates(directory="static")
+
 @visualization_router.get("/", response_class=HTMLResponse)
-def get_visulization_html_page():
-    with open("static/visualization.html") as f:
-        html_content = f.read()
-    return HTMLResponse(content=html_content)
+def get_visulization_html_page(request: Request):
+    backend_url = os.getenv("BACKEND_URL", "http://localhost:8000")
+    return templates.TemplateResponse("visualization.html", {"request": request, "backend_url": backend_url})
 
 @visualization_router.get("/property/price/", response_class=HTMLResponse)
 def get_price_distribution_visualization(
