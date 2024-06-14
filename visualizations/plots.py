@@ -5,6 +5,8 @@ from pydantic_models.property import PropertyQueryParams
 from sqlalchemy_schemas.property import Property, filter_property_query
 import plotly.express as px
 
+from utils.dataframe import forwardfill_price_for_historical_property_data
+
 def percentile_price_distribution(query_params: PropertyQueryParams, db_session: Session):
     query = filter_property_query(query_params=query_params, db_session=db_session, columns=[Property.price]).filter(Property.price > 0).all()
     
@@ -49,7 +51,6 @@ def bedrooms_distribution(query_params: PropertyQueryParams, db_session: Session
     bins = [0, 1, 2, 3, 4, 5, 6, float('inf')]
     labels = ['0', '1', '2', '3', '4', '5', '5+']
     df['bedroom_bins'] = pd.cut(df['bedrooms'], bins=bins, labels=labels, right=False)
-    #print(df)
     df_grouped = df.groupby('bedroom_bins').sum().reset_index()
     df_grouped['bedroom_bins'] = df_grouped['bedroom_bins'].astype(str)
     df_grouped = df_grouped.sort_values(by='bedroom_bins')
@@ -113,38 +114,55 @@ def historical_price_trends(query_params: PropertyQueryParams, db_session: Sessi
     query = filter_property_query(
             query_params=query_params, 
             db_session=db_session, 
-            columns=[Property.price, Property.datelisted],
+            columns=[Property.propertyid, Property.price, Property.datelisted, Property.price_per_square_feet],
             latest=False,
         ).filter(Property.price > 0, Property.datelisted != None).all()
     
     if not query:
         return "<h3>No data available for the given query parameters</h3>"
 
-    df = pd.DataFrame(query, columns=["price", "datelisted"])
+    df = pd.DataFrame(query, columns=["propertyid", "price", "datelisted", "price_per_square_feet"])
+    
+    df = forwardfill_price_for_historical_property_data(df=df)
+    
+    df_grouped_price = df.groupby('datelisted')['price'].mean().reset_index()
+    df_grouped_price['datelisted'] = df_grouped_price['datelisted'].dt.to_timestamp()
+    df_grouped_price = df_grouped_price.sort_values(by='datelisted')
 
-    # Convert DateListed to datetime and extract month and year
-    df['datelisted'] = pd.to_datetime(df['datelisted'])
-    df['year_month'] = df['datelisted'].dt.to_period('M')
-
-    # Calculate the average price per month
-    df_grouped = df.groupby('year_month')['price'].mean().reset_index()
-    df_grouped['year_month'] = df_grouped['year_month'].dt.to_timestamp()
-    df_grouped = df_grouped.sort_values(by='year_month')
-
-    # Create the line plot
-    fig = px.line(
-        df_grouped,
-        x='year_month',
+    df_grouped_ppsf = df.groupby('datelisted')['price_per_square_feet'].mean().reset_index()
+    df_grouped_ppsf['datelisted'] = df_grouped_ppsf['datelisted'].dt.to_timestamp()
+    df_grouped_ppsf = df_grouped_ppsf.sort_values(by='datelisted')
+    
+    fig_price = px.line(
+        df_grouped_price,
+        x='datelisted',
         y='price',
-        labels={"year_month": "Date", "price": "Average Price"},
+        labels={"datelisted": "Date", "price": "Average Price"},
         title="Average Property Price Over Time"
     )
 
-    fig.update_layout(
+    fig_price.update_layout(
         xaxis_title="Date",
         yaxis_title="Average Price",
         title="Average Property Price Over Time"
     )
 
+    fig_ppsf = px.line(
+        df_grouped_ppsf,
+        x='datelisted',
+        y='price_per_square_feet',
+        labels={"datelisted": "Date", "price_per_square_feet": "Average Price Per SqFt"},
+        title="Average Property Price Over Time"
+    )
+
+    fig_ppsf.update_layout(
+        xaxis_title="Date",
+        yaxis_title="Average Price Per Squarefeet",
+        title="Average Property Price per square feet Over Time"
+    )
+
     db_session.close()
-    return fig.to_html(full_html=False, include_plotlyjs='cdn')
+    return (
+        fig_price.to_html(full_html=False, include_plotlyjs='cdn') + 
+        fig_ppsf.to_html(full_html=False, include_plotlyjs='cdn')
+    )

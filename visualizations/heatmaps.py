@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from pydantic_models.property import PropertyQueryParams
 from sqlalchemy_schemas.property import Property, filter_property_query
 import plotly.express as px
+from utils.dataframe import forwardfill_price_for_historical_property_data
 
 def heatmaps_zipcode(query_params: PropertyQueryParams, db_session: Session):
     query = filter_property_query(
@@ -128,6 +129,7 @@ def heatmaps_zipcode(query_params: PropertyQueryParams, db_session: Session):
     db_session.close()
     return (
         fig_price.to_html(full_html=False, include_plotlyjs='cdn') + 
+        fig_ppsf.to_html(full_html=False, include_plotlyjs='cdn') +
         fig_listings.to_html(full_html=False, include_plotlyjs='cdn') +
         fig_squarefeet.to_html(full_html=False, include_plotlyjs='cdn') +
         fig_price_range.to_html(full_html=False, include_plotlyjs='cdn') +
@@ -147,16 +149,8 @@ def historical_heatmaps_zipcode(query_params: PropertyQueryParams, db_session: S
         return "<h3>No data available for the given query parameters</h3>"
 
     df = pd.DataFrame(query, columns=["propertyid", "price", "zipcode", "squarefeet", "datelisted", "price_per_square_feet"])
-    df['datelisted'] = pd.to_datetime(df['datelisted']).dt.to_period('M')
     
-    # all_periods = pd.period_range(start=df['datelisted'].min(), end=df['datelisted'].max(), freq='M')
-    # all_propertyids = df['propertyid'].unique()
-    # complete_index = pd.MultiIndex.from_product([all_propertyids, all_periods], names=['propertyid', 'datelisted'])
-    # df.set_index(['propertyid', 'datelisted'], inplace=True)
-    # df = df.reset_index().drop_duplicates(subset=['propertyid', 'datelisted']).set_index(['propertyid', 'datelisted'])
-    # df = df.reindex(complete_index).sort_index()
-    # df = df.groupby('propertyid').ffill().reset_index()
-    # print(df)
+    df = forwardfill_price_for_historical_property_data(df=df)
 
     zipcode_data = df.groupby(["zipcode", "datelisted"]).agg(
         average_price=("price", "mean"),
@@ -178,7 +172,7 @@ def historical_heatmaps_zipcode(query_params: PropertyQueryParams, db_session: S
 
     geojson_url = "https://raw.githubusercontent.com/OpenDataDE/State-zip-code-GeoJSON/master/fl_florida_zip_codes_geo.min.json"
 
-    # Create the heatmap for average price
+    # create the heatmap for average price
     fig_price = px.choropleth(
         zipcode_data,
         geojson=geojson_url,
@@ -194,6 +188,7 @@ def historical_heatmaps_zipcode(query_params: PropertyQueryParams, db_session: S
 
     fig_price.update_geos(fitbounds="locations", visible=False)
 
+    # create the heatmap for average price per square feet
     fig_ppsf = px.choropleth(
         zipcode_data,
         geojson=geojson_url,
@@ -209,7 +204,7 @@ def historical_heatmaps_zipcode(query_params: PropertyQueryParams, db_session: S
 
     fig_ppsf.update_geos(fitbounds="locations", visible=False)
 
-    # Create heatmap for number of listings
+    # create heatmap for number of listings
     fig_listings = px.choropleth(
         zipcode_data,
         geojson=geojson_url,
@@ -225,60 +220,9 @@ def historical_heatmaps_zipcode(query_params: PropertyQueryParams, db_session: S
 
     fig_listings.update_geos(fitbounds="locations", visible=False)
 
-    # Heatmap for avg squarefeet
-    area_bins = [0, 1000, 2000, 3000, 4000, 5000, float("inf")]
-    area_labels = ["<1000", "1000-2000", "2000-3000", "3000-4000", "4000-5000", ">5000"]
-    zipcode_data['area_range'] = pd.cut(zipcode_data['average_area'], bins=area_bins, labels=area_labels, right=False)
-
-    fig_squarefeet = px.choropleth(
-        zipcode_data,
-        geojson=geojson_url,
-        locations="zipcode",
-        featureidkey="properties.ZCTA5CE10",
-        color="area_range",
-        color_continuous_scale="Viridis",
-        scope="usa",
-        labels={"area_range": "Average Area Range"},
-        title="Average House Area Ranges by Zipcode in Miami",
-        animation_frame="datelisted"
-    )
-
-    fig_squarefeet.update_geos(fitbounds="locations", visible=False)
-
-    # Create heatmap for price ranges
-    fig_price_range = px.choropleth(
-        zipcode_data,
-        geojson=geojson_url,
-        locations="zipcode",
-        featureidkey="properties.ZCTA5CE10",
-        color="price_range",
-        scope="usa",
-        labels={"price_range": "Price Range"},
-        title="Property Price Ranges by Zipcode in Miami",
-        animation_frame="datelisted"
-    )
-
-    fig_price_range.update_geos(fitbounds="locations", visible=False)
-
-    fig_ppfs_range = px.choropleth(
-        zipcode_data,
-        geojson=geojson_url,
-        locations="zipcode",
-        featureidkey="properties.ZCTA5CE10",
-        color="price_per_squarefeet_range",
-        scope="usa",
-        labels={"price_per_squarefeet_range":"Price per Squarefeet Range"},
-        title="Property Price per Sq.Ft. Ranges by Zipcode in Miami",
-        animation_frame="datelisted"
-    )
-
-    fig_ppfs_range.update_geos(fitbounds="locations", visible=False)
-
     db_session.close()
     return (
         fig_price.to_html(full_html=False, include_plotlyjs='cdn') + 
-        fig_listings.to_html(full_html=False, include_plotlyjs='cdn') +
-        fig_squarefeet.to_html(full_html=False, include_plotlyjs='cdn') +
-        fig_price_range.to_html(full_html=False, include_plotlyjs='cdn') +
-        fig_ppfs_range.to_html(full_html=False, include_plotlyjs='cdn')
+        fig_ppsf.to_html(full_html=False, include_plotlyjs='cdn') + 
+        fig_listings.to_html(full_html=False, include_plotlyjs='cdn')
     )
