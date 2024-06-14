@@ -42,7 +42,7 @@ def get_property_room_distribution_visualization(
     html_plot = plots.bedrooms_distribution(query_params=query_params, db_session=db_session)
     return HTMLResponse(content=html_plot)
 
-@visualization_router.get("/property/price-vs-zipcode-scatter/", response_class=HTMLResponse)
+@visualization_router.get("/property/price-zipcode-box/", response_class=HTMLResponse)
 def get_price_zipcode_scatter_plot(
         query_params:PropertyQueryParams = Depends(property_query_params),
         db_session: Session = Depends(fetch_db_session)

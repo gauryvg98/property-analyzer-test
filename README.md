@@ -155,7 +155,7 @@ Sample Response :
 ##### 3. Bedrooms Distribution - `/visualization/property/rooms/`
 ###### A simple histogram which shows the count of properties within predefined price ranges
 
-##### 4. Price vs Zipcode Box Plots - `/visualization/property/price-vs-zipcode-scatter/`
+##### 4. Price vs Zipcode Box Plots - `/visualization/property/price-zipcode-box/`
 ###### A box plot which shows the distribution of property price grouped by zipcodes. It is good for seeing outliers and getting a general trend across different areas. 
 ###### Bug - This takes a little longer to load (~30 secs). Due to certain extreme outliers in data (properties which cost upwards of 1B USD), the plot is not very clear when viewed without any filters. Need to zoom to see the actual trends. Better to just clean them off, but for the time being, they are there in the data. 
 
