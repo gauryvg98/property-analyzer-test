@@ -30,11 +30,10 @@ app.include_router(visualization_router, prefix="/visualization")
 
 @app.get("/")
 def health():
-    load_data('./zoomprop_data_engineering.csv')
     return {"status" : "this service is healthy @ " + datetime.now().__str__()}
 
 @app.get("/load/")
-def load_data():
+def load_data_file():
     load_data('./zoomprop_data_engineering.csv')
     return {"status" : "loaded data successfully"}
 
