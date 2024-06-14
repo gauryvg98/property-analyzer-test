@@ -14,7 +14,7 @@ def fetch_db_session():
     finally:
         db.close()
 
-def create_db_tables() -> bool:
+def create_db_tables():
     #drop and create again on every restart (quick hacky way to ensure we dont overload data)
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)

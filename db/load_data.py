@@ -25,7 +25,12 @@ def load_data(csv_file):
         if property_entry.price > 0 and property_entry.squarefeet > 0:
             property_entry.price_per_square_feet = property_entry.price / property_entry.squarefeet
         properties.append(property_entry)
+        if len(properties) == 10000:
+            db_session.bulk_save_objects(properties)
+            db_session.commit()
+            properties = []
 
     db_session.bulk_save_objects(properties)
     db_session.commit()
+    properties = []
     db_session.close()

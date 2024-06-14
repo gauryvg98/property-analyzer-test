@@ -33,7 +33,7 @@ def health():
 
 if __name__ == "__main__":
     # initialize db before starting the api server
-    created_new_table = sqlite_setup.create_db_tables()
+    sqlite_setup.create_db_tables()
     ## Load data
     load_data('./zoomprop_data_engineering.csv')
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
