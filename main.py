@@ -35,6 +35,7 @@ def health():
 
 @app.get("/load/")
 def load_data_file(is_filtered: Optional[bool] = Query(False)):
+    sqlite_setup.create_db_tables()
     load_data("./zoomprop_data_engineering.csv", is_filtered)
     return {"status": "loaded data successfully"}
 
