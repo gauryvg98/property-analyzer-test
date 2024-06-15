@@ -8,6 +8,7 @@ class Percentiles(BaseModel):
     percentile_90_price: float
     percentile_99_price: float
 
+
 class PropertyStatisticsResponse(BaseModel):
     average_price: float
     median_price: float
