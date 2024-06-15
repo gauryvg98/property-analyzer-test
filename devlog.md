@@ -59,4 +59,5 @@ No variation in prices across duplicate properties across datetime listed found
 #### 8. Use plotly for visualizations.
 
 #### Note - Use the common filter property query function which can effectively filter the `properties` table as per query params, as these query params are consistent across all APIs exposed (including visualization APIs).
-#### Avoid visualizations which pass non-aggregated data to the plots, due to network and performance concerns. 
+#### Avoid visualizations which pass non-aggregated data to the plots, due to network and performance concerns (see box plot performance)
+#### Improvements to outlier detection can be done.

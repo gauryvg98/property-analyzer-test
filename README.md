@@ -7,7 +7,7 @@
 ##### 1. /docs/ - Link to the FastAPI docs
 ##### 2. /property - Routes to Property (filter, statistics, outliers) endpoints
 ##### 3. /visualization/ - Link to the visualizations
-##### 4. /load/ - Loads the data from the default csv into sqlite-db (Support for additional data)
+##### 4. /load/ - Loads the data from the default csv into sqlite-db (Support for adding additional data is not incorporated yet). Supports an is_filtered query param which can be used to filter out garbage outliers (prices > 500M and price per square feet > 100000)
 
 ### Setup :
 
@@ -155,8 +155,8 @@ Sample Response :
 ##### 3. Bedrooms Distribution - `/visualization/property/rooms/`
 ###### A simple histogram which shows the count of properties within predefined price ranges
 
-##### 4. Price vs Zipcode Box Plots - `/visualization/property/price-zipcode-box/`
-###### A box plot which shows the distribution of property price grouped by zipcodes. It is good for seeing outliers and getting a general trend across different areas. 
+##### 4. Price vs Zipcode Box Plots - `/visualization/property/price-zipcode-box/` - 
+###### A box plot which shows the distribution of property price grouped by zipcodes. It is good for seeing outliers and getting a general trend across different areas. Make sure to select `Compare data on hover` from options on top right of the plot to get meaningful insights
 ###### Bug - This takes a little longer to load (~30 secs). Due to certain extreme outliers in data (properties which cost upwards of 1B USD), the plot is not very clear when viewed without any filters. Need to zoom to see the actual trends. Better to just clean them off, but for the time being, they are there in the data. 
 
 ##### 5. Geographical Heatmap - `/visualization/property/zipcode-heatmaps/`
@@ -172,7 +172,8 @@ Sample Response :
 ##### 3. These can extended to use MagicMocks to mock db operations, so that each function can be independently tested without prepopulating db data.
 
 ### Improvements which can be made - 
-
+##### Window queries can be used instead of a subquery which joins to determine latest price for a property id with multiple datelisted params.
+##### Outlier detection loads all columns into memory. This can be improved by only performing operations on certain fields, and then using the returned id/propertyid to fetch those properties again from the db as a bulk select by id. This will be much faster and less memory intensive.
 
 ### Known Bugs - 
 ###### 1. Box plot seems to sometimes blow up the heroku "basic" dyno, causing the pod to provision more memory, or just go down. Please confirm the same through dev console on your browser.
