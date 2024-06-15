@@ -176,5 +176,6 @@ Sample Response :
 ##### Outlier detection loads all columns into memory. This can be improved by only performing operations on certain fields, and then using the returned id/propertyid to fetch those properties again from the db as a bulk select by id. This will be much faster and less memory intensive.
 
 ### Known Bugs - 
+##### There is a mismatch in heroku live url and local post data load. Request you to run this locally for the best results.
 ###### 1. Box plot seems to sometimes blow up the heroku "basic" dyno, causing the pod to provision more memory, or just go down. Please confirm the same through dev console on your browser.
 ###### 2. Box plot takes sometime to load
