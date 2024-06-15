@@ -17,7 +17,7 @@ class Property(Base):
     bedrooms = Column(Integer, nullable=True,)
     bathrooms = Column(Float, nullable=True,)
     squarefeet = Column(Float, nullable=True,)
-    price_per_square_feet = Column(Float,nullable=True)
+    price_per_square_feet = Column(Float, nullable=True)
     datelisted = Column(DateTime, nullable=True,)
 
     __table_args__ = (

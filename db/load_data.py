@@ -29,7 +29,7 @@ def load_data(csv_file, is_filtered):
             property_entry.price = None #setting this to None to not skew our analysis
         
         # filter out garbage/extreme outlier data before load
-        if is_filtered and ((property_entry.price > 500000000 or property_entry.price < 150) or (property_entry.price_per_square_feet != None and (property_entry.price_per_square_feet > 100000 or property_entry.price_per_square_feet < 1))):
+        if is_filtered and check_if_extreme_outlier_during_load(property_entry=property_entry):
             continue
 
         properties.append(property_entry)
@@ -42,3 +42,12 @@ def load_data(csv_file, is_filtered):
     db_session.commit()
     properties = []
     db_session.close()
+
+def check_if_extreme_outlier_during_load(property_entry) -> bool:
+    price_check = False
+    if property_entry.price is not None:
+        price_check = property_entry.price > 500000000 or property_entry.price < 150
+    ppsf_check = False
+    if property_entry.price_per_square_feet is not None:
+        ppsf_check = property_entry.price_per_square_feet < 1 or property_entry.price_per_square_feet > 100000
+    return price_check or ppsf_check
