@@ -23,7 +23,7 @@ def get_price_distribution_visualization(
     query_params:PropertyQueryParams = Depends(property_query_params),
     db_session: Session = Depends(fetch_db_session)
 ):
-    html_plot = plots.percentile_price_distribution(query_params=query_params, db_session=db_session)
+    html_plot = plots.price_distribution(query_params=query_params, db_session=db_session)
     return HTMLResponse(content=html_plot)
 
 @visualization_router.get("/property/historical-price/", response_class=HTMLResponse)

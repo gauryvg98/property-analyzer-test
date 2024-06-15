@@ -171,6 +171,9 @@ Sample Response :
 ##### 2. Spins up an in-memory sqlite instance which is used for all database operations.
 ##### 3. These can extended to use MagicMocks to mock db operations, so that each function can be independently tested without prepopulating db data.
 
+### Improvements which can be made - 
+
+
 ### Known Bugs - 
 ###### 1. Box plot seems to sometimes blow up the heroku "basic" dyno, causing the pod to provision more memory, or just go down. Please confirm the same through dev console on your browser.
-###### 2. Box plot takes sometime to load, so dont panic and overload the baby heroku server with more button clicks xD
+###### 2. Box plot takes sometime to load

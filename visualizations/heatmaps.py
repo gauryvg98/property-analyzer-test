@@ -4,6 +4,7 @@ from pydantic_models.property import PropertyQueryParams
 from sqlalchemy_schemas.property import Property, filter_property_query
 import plotly.express as px
 from utils.dataframe import forwardfill_price_for_historical_property_data
+import visualizations.constants as constants
 
 def heatmaps_zipcode(query_params: PropertyQueryParams, db_session: Session):
     query = filter_property_query(
@@ -23,15 +24,9 @@ def heatmaps_zipcode(query_params: PropertyQueryParams, db_session: Session):
         average_price_per_sqft=("price_per_square_feet", "mean"),
         average_area=("squarefeet", "mean"),
     ).reset_index()
-
-    bins_price = [0, 100000, 300000, 500000, 700000, 1000000, 2000000, 4000000, float("inf")]
-    labels_price = ["<100k", "100k-300k", "300k-500k", "500k-700k", "700k-1M", "1M-2M", "2M-4M", ">4M"]
-
-    bins_ppsf = [0, 100, 200, 300, 400, 500, 600, 800, 1000, 1200, 1600, float("inf")]
-    labels_ppsf = ["<100", "100-200", "200-300", "300-400", "400-500", "500-600", "600-800", "800-1000", "1000-1200", "1200-1600", ">1600"]
     
-    zipcode_data['price_range'] = pd.cut(zipcode_data['average_price'], bins=bins_price, labels=labels_price, right=False)
-    zipcode_data['price_per_squarefeet_range'] = pd.cut(zipcode_data['average_price_per_sqft'], bins=bins_ppsf, labels=labels_ppsf, right=False)
+    zipcode_data['price_range'] = pd.cut(zipcode_data['average_price'], bins=constants.bins_price, labels=constants.labels_price, right=False)
+    zipcode_data['price_per_squarefeet_range'] = pd.cut(zipcode_data['average_price_per_sqft'], bins=constants.bins_ppsf, labels=constants.labels_ppsf, right=False)
 
     geojson_url = "https://raw.githubusercontent.com/OpenDataDE/State-zip-code-GeoJSON/master/fl_florida_zip_codes_geo.min.json"
 
@@ -81,9 +76,7 @@ def heatmaps_zipcode(query_params: PropertyQueryParams, db_session: Session):
     fig_listings.update_geos(fitbounds="locations", visible=False)
 
     # heatmap for avg squarefeet
-    area_bins = [0, 1000, 2000, 3000, 4000, 5000, float("inf")]
-    area_labels = ["<1000", "1000-2000", "2000-3000", "3000-4000", "4000-5000", ">5000"]
-    zipcode_data['area_range'] = pd.cut(zipcode_data['average_area'], bins=area_bins, labels=area_labels, right=False)
+    zipcode_data['area_range'] = pd.cut(zipcode_data['average_area'], bins=constants.area_bins, labels=constants.area_labels, right=False)
 
     fig_squarefeet = px.choropleth(
         zipcode_data,
@@ -161,14 +154,8 @@ def historical_heatmaps_zipcode(query_params: PropertyQueryParams, db_session: S
 
     zipcode_data = zipcode_data.sort_values(by='datelisted')
 
-    bins_price = [0, 100000, 300000, 500000, 700000, 1000000, 2000000, 4000000, float("inf")]
-    labels_price = ["<100k", "100k-300k", "300k-500k", "500k-700k", "700k-1M", "1M-2M", "2M-4M", ">4M"]
-
-    bins_ppsf = [0, 100, 200, 300, 400, 500, 600, 800, 1000, 1200, 1600, float("inf")]
-    labels_ppsf = ["<100", "100-200", "200-300", "300-400", "400-500", "500-600", "600-800", "800-1000", "1000-1200", "1200-1600", ">1600"]
-    
-    zipcode_data['price_range'] = pd.cut(zipcode_data['average_price'], bins=bins_price, labels=labels_price, right=False)
-    zipcode_data['price_per_squarefeet_range'] = pd.cut(zipcode_data['average_price_per_sqft'], bins=bins_ppsf, labels=labels_ppsf, right=False)
+    zipcode_data['price_range'] = pd.cut(zipcode_data['average_price'], bins=constants.bins_price, labels=constants.labels_price, right=False)
+    zipcode_data['price_per_squarefeet_range'] = pd.cut(zipcode_data['average_price_per_sqft'], bins=constants.bins_ppsf, labels=constants.labels_ppsf, right=False)
 
     geojson_url = "https://raw.githubusercontent.com/OpenDataDE/State-zip-code-GeoJSON/master/fl_florida_zip_codes_geo.min.json"
 

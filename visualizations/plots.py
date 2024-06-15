@@ -4,25 +4,22 @@ from sqlalchemy.orm import Session
 from pydantic_models.property import PropertyQueryParams
 from sqlalchemy_schemas.property import Property, filter_property_query
 import plotly.express as px
-
+import visualizations.constants as constants
 from utils.dataframe import forwardfill_price_for_historical_property_data
 
-def percentile_price_distribution(query_params: PropertyQueryParams, db_session: Session):
+def price_distribution(query_params: PropertyQueryParams, db_session: Session):
     query = filter_property_query(query_params=query_params, db_session=db_session, columns=[Property.price]).filter(Property.price > 0).all()
     
     if not query:
         return "<h3>No data available for the given query parameters</h3>"
 
     df = pd.DataFrame(query, columns=["price"])
-
-    bins = [0, 100000, 200000, 300000, 400000, 500000, 750000, 1000000, 1500000, 2000000, 3000000, 4000000, 5000000, float("inf")]
-    labels = ["<100k", "100k-200k", "200k-300k", "300k-400k", "400k-500k", "500k-750k", "750k-1M", "1M-1.5M", "1.5M-2M", "2M-3M", "3M-4M", "4M-5M", ">5M"]
     
-    df['price_bins'] = pd.cut(df['price'], bins=bins, labels=labels, right=False, include_lowest=True)
+    df['price_bins'] = pd.cut(df['price'], bins=constants.bins_price_histogram, labels=constants.labels_price_histogram, right=False, include_lowest=True)
     
     df['price_bins'] = df['price_bins'].astype(str)
     df_grouped = df.groupby('price_bins').size().reset_index(name='count')
-    df_grouped['price_bins'] = pd.Categorical(df_grouped['price_bins'], categories=labels, ordered=True)
+    df_grouped['price_bins'] = pd.Categorical(df_grouped['price_bins'], categories=constants.labels_price_histogram, ordered=True)
     df_grouped = df_grouped.sort_values(by='price_bins')
     fig = px.histogram(
         df_grouped,
@@ -48,9 +45,8 @@ def bedrooms_distribution(query_params: PropertyQueryParams, db_session: Session
     if not query:
         return "<h3>No data available for the given query parameters</h3>"
     df = pd.DataFrame(result, columns=["bedrooms", "count"])
-    bins = [0, 1, 2, 3, 4, 5, 6, float('inf')]
-    labels = ['0', '1', '2', '3', '4', '5', '5+']
-    df['bedroom_bins'] = pd.cut(df['bedrooms'], bins=bins, labels=labels, right=False)
+
+    df['bedroom_bins'] = pd.cut(df['bedrooms'], bins=constants.bins_bedrooms, labels=constants.labels_bedrooms, right=False)
     df_grouped = df.groupby('bedroom_bins').sum().reset_index()
     df_grouped['bedroom_bins'] = df_grouped['bedroom_bins'].astype(str)
     df_grouped = df_grouped.sort_values(by='bedroom_bins')
@@ -60,7 +56,7 @@ def bedrooms_distribution(query_params: PropertyQueryParams, db_session: Session
         y="count",
         labels={"bedroom_bins": "Number of Bedrooms", "count": "Count"},
         title="Distribution of Properties Based on Number of Bedrooms",
-        category_orders={"bedroom_bins": labels}
+        category_orders={"bedroom_bins": constants.labels_bedrooms}
     )
 
     fig.update_layout(
