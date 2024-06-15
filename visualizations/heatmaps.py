@@ -20,7 +20,7 @@ def heatmaps_zipcode(query_params: PropertyQueryParams, db_session: Session):
             ],
         )
         .filter(
-            Property.zipcode != None, Property.city == "Miami", Property.squarefeet > 0
+            Property.zipcode.isnot(None), Property.city == "Miami", Property.squarefeet > 0
         )
         .all()
     )
@@ -177,10 +177,10 @@ def historical_heatmaps_zipcode(query_params: PropertyQueryParams, db_session: S
             latest=False,
         )
         .filter(
-            Property.zipcode != None,
+            Property.zipcode.isnot(None),
             Property.squarefeet > 0,
             Property.price > 0,
-            Property.datelisted != None,
+            Property.datelisted.isnot(None),
         )
         .all()
     )

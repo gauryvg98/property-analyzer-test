@@ -63,7 +63,7 @@ def bedrooms_distribution(query_params: PropertyQueryParams, db_session: Session
             db_session=db_session,
             columns=[Property.bedrooms, func.count(Property.id).label("count")],
         )
-        .filter(Property.bedrooms != None)
+        .filter(Property.bedrooms.isnot(None))
         .group_by(Property.bedrooms)
     )
     result = query.all()
@@ -163,7 +163,7 @@ def historical_price_trends(query_params: PropertyQueryParams, db_session: Sessi
             ],
             latest=False,
         )
-        .filter(Property.price > 0, Property.datelisted != None)
+        .filter(Property.price > 0, Property.datelisted.isnot(None))
         .all()
     )
 

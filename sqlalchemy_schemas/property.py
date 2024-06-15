@@ -71,7 +71,7 @@ def filter_property_query(
         query = db_session.query(Property)
     else:
         query = db_session.query(*columns)
-    if query_params == None:
+    if query_params is None:
         return query
     # filters on price
     if query_params.price_min is not None:
@@ -122,7 +122,7 @@ def filter_property_query(
                 Property.propertyid,
                 func.max(Property.datelisted).label("max_datelisted"),
             )
-            .filter(Property.datelisted != None)
+            .filter(Property.datelisted.isnot(None))
             .group_by(Property.propertyid)
             .subquery()
         )
@@ -135,7 +135,7 @@ def filter_property_query(
             ),
         ).filter(
             (Property.datelisted == subquery.c.max_datelisted)
-            | (Property.datelisted == None)
+            | (Property.datelisted.is_(None))
         )
 
     return query
