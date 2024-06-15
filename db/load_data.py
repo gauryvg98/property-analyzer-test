@@ -25,7 +25,11 @@ def load_data(csv_file, is_filtered):
         if property_entry.price > 0 and property_entry.squarefeet > 0:
             property_entry.price_per_square_feet = property_entry.price / property_entry.squarefeet
         
-        if is_filtered and (property_entry.price > 500000000 or (property_entry.price_per_square_feet != None and property_entry.price_per_square_feet > 100000)):
+        if is_filtered and property_entry.price == 0:
+            property_entry.price = None #setting this to None to not skew our analysis
+        
+        # filter out garbage/extreme outlier data before load
+        if is_filtered and ((property_entry.price > 500000000 or property_entry.price < 150) or (property_entry.price_per_square_feet != None and (property_entry.price_per_square_feet > 100000 or property_entry.price_per_square_feet < 1))):
             continue
 
         properties.append(property_entry)
