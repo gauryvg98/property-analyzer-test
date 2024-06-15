@@ -6,18 +6,15 @@ from sqlalchemy_schemas.property import Property, filter_property_query
 
 
 def calculate_property_statistics(query_params: PropertyQueryParams, db_session: Session) -> PropertyStatisticsResponse:
-    query = filter_property_query(query_params=query_params, db_session=db_session)
-    query = query.filter(Property.price > 0)
-    query = query.filter(Property.squarefeet > 0)
+    result = filter_property_query(query_params=query_params, db_session=db_session, columns=[Property.price, Property.price_per_square_feet]).filter(Property.price > 0, Property.price_per_square_feet > 0).all()
     # Read the prices and squarefeet columns
-    df = pd.read_sql(query.statement, db_session.bind)
+    df = pd.DataFrame(result, columns=["price", "price_per_square_feet"])
 
     if df.empty:
         raise ValueError("No data available for the given query parameters.")
 
     prices = df['price']
-    squarefeet = df['squarefeet']
-
+    ppsf = df['price_per_square_feet']
     # calculate percentiles
     p25 = prices.quantile(0.25)
     p50 = prices.median()
@@ -27,7 +24,7 @@ def calculate_property_statistics(query_params: PropertyQueryParams, db_session:
     iqr = p75 - p25
 
     average_price = prices.mean()
-    average_price_per_sqft = (prices / squarefeet).mean()
+    average_price_per_sqft = ppsf.mean()
     total_properties = len(prices)
 
     # calculate outliers
