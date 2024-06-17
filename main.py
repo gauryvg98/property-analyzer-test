@@ -42,7 +42,7 @@ def load_data_file(is_filtered: Optional[bool] = Query(False)):
 
 if __name__ == "__main__":
     # initialize db before starting the api server
-    sqlite_setup.create_db_tables()
+    # sqlite_setup.create_db_tables()
     # Load data
     # comment out the line below if you want sync load before app start (break heroku dyno due to timeouts)
     # load_data('./zoomprop_data_engineering.csv', is_filtered=True)
